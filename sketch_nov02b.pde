@@ -28,9 +28,9 @@ void DMAEvent(){
     //11. Disable DMA when we are done
     dma_disable(DMA1,DMA_CH3);
     SerialUSB.println("Done transfering");
-    complete++;
-    recieveData = bytesReceived[10] + 1;
-    sentData = bytesToSend[10] + 1;
+    complete = complete + 3;
+    recieveData = bytesReceived[10] + 3;
+    sentData = bytesToSend[10] + 3;
     break;
     //the event indicates that there was an error transmitting
   case DMA_TRANSFER_ERROR:
@@ -84,16 +84,16 @@ void setup(){
   // - The buffer we want to copy things to or transmit things from
   // - The unit size of that buffer
   // - Flags (see the Maple DMA Wiki page for more info in flags)
-  dma_setup_transfer(DMA1, DMA_CH3, &SPI1->regs->DR, DMA_SIZE_8BITS,
-  bytesToSend, DMA_SIZE_8BITS, (DMA_MINC_MODE | DMA_TRNS_CMPLT | DMA_TRNS_ERR)); // DMA_CH3 - SPI1_TX
   dma_setup_transfer(DMA1, DMA_CH2, &SPI1->regs->DR, DMA_SIZE_8BITS,
-  bytesReceived, DMA_SIZE_8BITS,(DMA_MINC_MODE | DMA_CIRC_MODE | DMA_FROM_MEM)); // DMA_CH2 - SPI1_RX
+  bytesReceived, DMA_SIZE_8BITS, (DMA_MINC_MODE | DMA_TRNS_CMPLT | DMA_TRNS_ERR));  // DMA_CH2 - SPI1_RX
+  dma_setup_transfer(DMA1, DMA_CH3, &SPI1->regs->DR, DMA_SIZE_8BITS,
+  bytesToSend, DMA_SIZE_8BITS,(DMA_MINC_MODE | DMA_CIRC_MODE | DMA_FROM_MEM));      // DMA_CH3 - SPI1_TX
 
   // 7. Attach an interrupt to the transfer. Note that we need to add
   // the interrupt flag in step 6 (DMA_TRNS_CMPLT and DMA_TRNS_ERR).
   // Also, we only attach it for one of the transfers since they are
   // going to finish at the same time because they are in sync.
-  dma_attach_interrupt(DMA1, DMA_CH3, DMAEvent);
+  dma_attach_interrupt(DMA1, DMA_CH2, DMAEvent);
 
   //8. Setup the priority for the DMA transfer.
   dma_set_priority(DMA1, DMA_CH2, DMA_PRIORITY_VERY_HIGH);
@@ -123,11 +123,14 @@ void loop(){
   delay(100);
 }
 
-// running result: seems not the ones I am expecting...the recieveData is wrong at least
-// complete value = 89
-// recieveData = 35
-// sentData = 1
-// inPin value = 1
-// complete value = 89
-// recieveData = 35
-// sentData = 1
+//Connect gnd and miso, for RX. And below is the Serial output:
+//inPin value = 1
+//complete value = 91
+//recieveData = 3
+//sentData = 15
+
+//Connect pin20 (output HIGH) and miso, for RX. And below is the Serial output:
+//inPin value = 1
+//complete value = 91
+//recieveData = 258
+//sentData = 15

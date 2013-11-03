@@ -5,3 +5,8 @@ the example code to show how to apply DMA (SPI) on Maple mini board
 
 The original code is from below link:
 http://polplaiconesa.com/tutorials/SPI+DMA.html
+But it contains error and I correct it like below:
+ dma_setup_transfer(DMA1, DMA_CH2, &SPI1->regs->DR, DMA_SIZE_8BITS,
+  bytesReceived, DMA_SIZE_8BITS, (DMA_MINC_MODE | DMA_TRNS_CMPLT | DMA_TRNS_ERR));  // DMA_CH2 - SPI1_RX
+  dma_setup_transfer(DMA1, DMA_CH3, &SPI1->regs->DR, DMA_SIZE_8BITS,
+  bytesToSend, DMA_SIZE_8BITS,(DMA_MINC_MODE | DMA_CIRC_MODE | DMA_FROM_MEM));      // DMA_CH3 - SPI1_TX
